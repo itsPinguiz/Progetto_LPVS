@@ -1,0 +1,105 @@
+MODULE main
+    VAR
+        -- Definizione delle variabili per simulare 5 tag RFID
+        tag1 : {idle, request, colliding, success};
+        tag2 : {idle, request, colliding, success};
+        tag3 : {idle, request, colliding, success};
+        tag4 : {idle, request, colliding, success};
+        tag5 : {idle, request, colliding, success};
+        -- Variabile per controllare lo stato del lettore
+        reader : {listening, resolving_collision, reading};
+
+    ASSIGN
+        -- Assegnazione iniziale degli stati
+        init(tag1) := idle;
+        init(tag2) := idle;
+        init(tag3) := idle;
+        init(tag4) := idle;
+        init(tag5) := idle;
+        init(reader) := listening;
+
+        -- Transizione di stato per i tag e il lettore
+        next(tag1) := case
+            tag1 = idle & reader = listening : {request, idle};
+            tag1 = request & (tag2 = request | tag3 = request | tag4 = request | tag5 = request) : colliding;
+            tag1 = request & !(tag2 = request | tag3 = request | tag4 = request | tag5 = request) : success;
+            tag1 = colliding & reader = resolving_collision : {idle, request};
+            tag1 = success : success;
+            TRUE : idle;
+        esac;
+
+        next(tag2) := case
+            tag2 = idle & reader = listening : {request, idle};
+            tag2 = request & (tag1 = request | tag3 = request | tag4 = request | tag5 = request) : colliding;
+            tag2 = request & !(tag1 = request | tag3 = request | tag4 = request | tag5 = request) : success;
+            tag2 = colliding & reader = resolving_collision : {idle, request};
+            tag2 = success : success;
+            TRUE : idle;
+        esac;
+
+        next(tag3) := case
+            tag3 = idle & reader = listening : {request, idle};
+            tag3 = request & (tag2 = request | tag1 = request | tag4 = request | tag5 = request) : colliding;
+            tag3 = request & !(tag2 = request | tag1 = request | tag4 = request | tag5 = request) : success;
+            tag3 = colliding & reader = resolving_collision : {idle, request};
+            tag3 = success : success;
+            TRUE : idle;
+        esac;
+
+        next(tag4) := case
+            tag4 = idle & reader = listening : {request, idle};
+            tag4 = request & (tag2 = request | tag1 = request | tag3 = request | tag5 = request) : colliding;
+            tag4 = request & !(tag2 = request | tag1 = request | tag3 = request | tag5 = request) : success;
+            tag4 = colliding & reader = resolving_collision : {idle, request};
+            tag4 = success : success;
+            TRUE : idle;
+        esac;
+
+        next(tag5) := case
+            tag5 = idle & reader = listening : {request, idle};
+            tag5 = request & (tag2 = request | tag1 = request | tag4 = request | tag3 = request) : colliding;
+            tag5 = request & !(tag2 = request | tag1 = request | tag4 = request | tag3 = request) : success;
+            tag5 = colliding & reader = resolving_collision : {idle, request};
+            tag5 = success : success;
+            TRUE : idle;
+        esac;
+
+        next(reader) := case
+            reader = listening & (tag1 = request | tag2 = request | tag3 = request | tag4 = request | tag5 = request) : {resolving_collision, reading};
+            reader = resolving_collision : listening;
+            reader = reading : listening;
+            TRUE : listening;
+        esac;
+
+
+    LTLSPEC
+        -- Ogni tag deve eventualmente raggiungere lo stato di successo
+        G F (tag1 = success)
+    LTLSPEC
+        G F (tag2 = success)
+    LTLSPEC
+        G F (tag3 = success)
+    LTLSPEC
+        G F (tag4 = success)
+    LTLSPEC
+        G F (tag5 = success)
+
+    LTLSPEC
+        -- Non ci dovrebbero essere collisioni permanenti
+        G !(tag1 = colliding & tag2 = colliding & tag3 = colliding & tag4 = colliding & tag5 = colliding)
+
+    CTLSPEC
+        -- In ogni stato del sistema, è possibile per ogni tag raggiungere il successo
+        AG EF (tag1 = success)
+    CTLSPEC
+        AG EF (tag2 = success)
+    CTLSPEC
+        AG EF (tag3 = success)
+    CTLSPEC
+        AG EF (tag4 = success)
+    CTLSPEC
+        AG EF (tag5 = success)
+
+    CTLSPEC
+        -- Non ci dovrebbero essere stati in cui tutti i tag sono in collisione
+        AG !(tag1 = colliding & tag2 = colliding & tag3 = colliding & tag4 = colliding & tag5 = colliding)

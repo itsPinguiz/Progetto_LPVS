@@ -1,1 +1,7 @@
 # Progetto_LPVS
+
+Questo progetto riguarda lo sviluppo di un modello in NuSMV per simulare e risolvere il conflitto di 5 tag RFID in un sistema di identificazione a radiofrequenza. L'obiettivo è gestire efficacemente le collisioni di comunicazione tra i tag quando tentano di comunicare simultaneamente con un lettore RFID. Il modello utilizza un approccio basato su algoritmi ad albero per risolvere le collisioni, consentendo a ogni tag di passare attraverso stati come idle, request, colliding e success.
+
+Nel modello, i tag cambiano stato in risposta all'ambiente e alle azioni degli altri tag. Un aspetto cruciale è la risoluzione delle collisioni, dove più tag tentano di comunicare contemporaneamente, creando la necessità di gestire e risolvere tali collisioni per un flusso di comunicazione efficace.
+
+Il progetto include anche la verifica di proprietà specifiche utilizzando sia la logica temporale lineare (LTL) che la logica del calcolo degli alberi (CTL) per assicurare che ogni tag raggiunga eventualmente lo stato di success e che il sistema gestisca in modo efficace le collisioni. Le verifiche hanno rivelato aree di miglioramento nel modello, principalmente legate alla gestione delle collisioni e alla garanzia che ogni tag raggiunga lo stato di successo lungo ogni percorso temporale. Queste scoperte hanno portato a considerare l'introduzione di meccanismi di ritardo o backoff e la modifica delle logiche di transizione per ottimizzare il sistema.
